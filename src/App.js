@@ -1,10 +1,12 @@
 
 import { useEffect,useState } from 'react';
 import {db} from './firebaseConfig'
-import { collection,getDocs,addDoc,updateDoc,doc,deleteDoc,onSnapshot } from '@firebase/firestore';
+import { collection,query,getDocs,where,addDoc,updateDoc,doc,deleteDoc,onSnapshot } from '@firebase/firestore';
 
 function App() {
   const [users,setusers]=useState([])
+  const [search,setsearch]=useState()
+  const [als,seta]=useState()
   const [newname,setname]=useState('')
   const [newage,setage]=useState(0)
 
@@ -19,12 +21,11 @@ function App() {
 
     
     const getusers=async()=>{
-      // const data=await getDocs(usercollection)
-      // setusers(data.docs.map(doc=>({...doc.data(),id:doc.id})))
-      // setusers(({...usersdata.docs.map(doc=>({...doc.data(),id:doc.id}))}))
       onSnapshot(usercollection,(snapshot)=>{
-          setusers(snapshot.docs.map(doc=>({...doc.data(),id:doc.id})))
           
+          setusers(snapshot.docs.map(doc=>({...doc.data(),id:doc.id})))
+          // setusers(snapshot.docs.map(doc=>(doc.data())))
+
       })
 
     }
@@ -46,6 +47,16 @@ function App() {
   const userupdate=doc(db,"users",id)
    await deleteDoc(userupdate)
 }
+//search
+const find=async ()=>{
+ 
+ const all= query(usercollection,where("name",'==',search))
+const querySnapshot = await getDocs(all);
+ querySnapshot.forEach((doc) => {
+    console.log(doc.data());
+});
+
+}
   return (
     <div className="App">
      <h1>hello firebase</h1>
@@ -56,6 +67,10 @@ function App() {
       <input type="number" placeholder='age' onChange={(e)=>setage(e.target.value)}/>
       <br/>
       <button onClick={create}>adduser</button>
+     </div>
+     <div>
+     <input type="text" placeholder='search' onChange={(e)=>setsearch(e.target.value)}/>
+     <button onClick={find}>search</button>
      </div>
      {users.map(user=>(
       <div key={user.id} style={{border:'1px solid black',margin:'10px',width:"500px"}}>
