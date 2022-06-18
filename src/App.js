@@ -1,7 +1,7 @@
 
 import { useEffect,useState } from 'react';
 import {db} from './firebaseConfig'
-import { collection,getDocs,addDoc } from '@firebase/firestore';
+import { collection,getDocs,addDoc,updateDoc,doc } from '@firebase/firestore';
 import { async } from '@firebase/util';
 
 function App() {
@@ -27,7 +27,13 @@ function App() {
 
    //create
     const create=async ()=>{
-       await addDoc(usercollecion,{name:newname,age:newage})
+       await addDoc(usercollecion,{name:newname,age:Number(newage)})
+    }
+  //update
+    const update=async (id,age)=>{
+      const userupdate=doc(db,"users",id)
+      const newfield={age:age+1}
+       await updateDoc(userupdate,newfield)
     }
 
   return (
@@ -44,7 +50,10 @@ function App() {
      {users.map(user=>(
       <div key={user.id} style={{border:'1px solid black',margin:'10px',width:"200px"}}>
          <h1>name:{user.name}</h1>
-         <h1>age:{user.age}</h1>
+         <h1>
+          age:{user.age}
+          <button onClick={()=>update(user.id,user.age)}>increase age</button>
+         </h1>
       </div>
      ))}
     </div>
