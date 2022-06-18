@@ -1,8 +1,7 @@
 
 import { useEffect,useState } from 'react';
 import {db} from './firebaseConfig'
-import { collection,getDocs,addDoc,updateDoc,doc,deleteDoc } from '@firebase/firestore';
-import { async } from '@firebase/util';
+import { collection,getDocs,addDoc,updateDoc,doc,deleteDoc,onSnapshot } from '@firebase/firestore';
 
 function App() {
   const [users,setusers]=useState([])
@@ -11,16 +10,22 @@ function App() {
 
 
   //making refs to firestore db
-  const usercollecion=collection(db,"users")
+  const usercollection=collection(db,"users")
   
    //CRUD OPERATIONS
     
-   //read
+   //Read
    useEffect(()=>{
+
+    
     const getusers=async()=>{
-      const data=await getDocs(usercollecion)
-      setusers(data.docs.map(doc=>({...doc.data(),id:doc.id})))
+      // const data=await getDocs(usercollection)
+      // setusers(data.docs.map(doc=>({...doc.data(),id:doc.id})))
       // setusers(({...usersdata.docs.map(doc=>({...doc.data(),id:doc.id}))}))
+      onSnapshot(usercollection,(snapshot)=>{
+          setusers(snapshot.docs.map(doc=>({...doc.data(),id:doc.id})))
+          
+      })
 
     }
     getusers()
@@ -28,7 +33,7 @@ function App() {
 
    //create
     const create=async ()=>{
-       await addDoc(usercollecion,{name:newname,age:Number(newage)})
+       await addDoc(usercollection,{name:newname,age:Number(newage)})
     }
   //update
     const update=async (id,age)=>{
